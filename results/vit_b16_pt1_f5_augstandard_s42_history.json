@@ -1,0 +1,53 @@
+{
+  "tag": "vit_b16_pt1_f5_augstandard_s42",
+  "model": "vit_b16",
+  "pretrained": true,
+  "fraction": 0.05,
+  "aug_policy": "standard",
+  "seed": 42,
+  "train_loss": [
+    0.11169,
+    0.06876,
+    0.05982
+  ],
+  "val_loss": [
+    0.05742,
+    0.05669,
+    0.05704
+  ],
+  "train_map": [
+    0.7736,
+    0.8915,
+    0.9141
+  ],
+  "val_map": [
+    0.918,
+    0.9215,
+    0.9231
+  ],
+  "per_class_ap_final": {
+    "aeroplane": 0.9948,
+    "bicycle": 0.9307,
+    "bird": 0.9746,
+    "boat": 0.9528,
+    "bottle": 0.7758,
+    "bus": 0.9544,
+    "car": 0.8862,
+    "cat": 0.9867,
+    "chair": 0.8276,
+    "cow": 0.9753,
+    "diningtable": 0.8854,
+    "dog": 0.9811,
+    "horse": 0.9793,
+    "motorbike": 0.9512,
+    "person": 0.9664,
+    "pottedplant": 0.7426,
+    "sheep": 0.9839,
+    "sofa": 0.8244,
+    "train": 0.9951,
+    "tvmonitor": 0.8938
+  },
+  "best_epoch": 3,
+  "best_val_map": 0.9231,
+  "training_time_s": 613.2
+}

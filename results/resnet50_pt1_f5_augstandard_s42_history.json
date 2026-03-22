@@ -1,0 +1,53 @@
+{
+  "tag": "resnet50_pt1_f5_augstandard_s42",
+  "model": "resnet50",
+  "pretrained": true,
+  "fraction": 0.05,
+  "aug_policy": "standard",
+  "seed": 42,
+  "train_loss": [
+    0.15179,
+    0.12871,
+    0.12099
+  ],
+  "val_loss": [
+    0.10087,
+    0.1047,
+    0.09871
+  ],
+  "train_map": [
+    0.582,
+    0.6868,
+    0.7216
+  ],
+  "val_map": [
+    0.8032,
+    0.802,
+    0.8061
+  ],
+  "per_class_ap_final": {
+    "aeroplane": 0.9603,
+    "bicycle": 0.8202,
+    "bird": 0.918,
+    "boat": 0.8331,
+    "bottle": 0.5883,
+    "bus": 0.8961,
+    "car": 0.7589,
+    "cat": 0.94,
+    "chair": 0.6498,
+    "cow": 0.7941,
+    "diningtable": 0.727,
+    "dog": 0.9091,
+    "horse": 0.797,
+    "motorbike": 0.8578,
+    "person": 0.9375,
+    "pottedplant": 0.5601,
+    "sheep": 0.8831,
+    "sofa": 0.5607,
+    "train": 0.9316,
+    "tvmonitor": 0.7998
+  },
+  "best_epoch": 3,
+  "best_val_map": 0.8061,
+  "training_time_s": 386.0
+}

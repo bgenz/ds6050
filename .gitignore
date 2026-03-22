@@ -1,7 +1,6 @@
 .data
 data
 checkpoints
-results
 __pycache__
 .pt
 .pyc
