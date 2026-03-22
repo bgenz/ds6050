@@ -15,6 +15,35 @@ VOC_CLASSES = [
     "pottedplant", "sheep", "sofa", "train", "tvmonitor"
 ]
 
+VOC_CLASS_CATEGORIES = {
+    "texture_defined": [
+        "cat",
+        "dog",
+        "bird",
+        "sheep",
+        "cow",
+        "horse",
+        "bottle",
+        "tvmonitor",
+    ],
+    "context_dependent": [
+        "diningtable",
+        "sofa",
+        "chair",
+        "pottedplant",
+        "boat",
+        "aeroplane",
+        "train",
+    ],
+    "ambiguous": [
+        "person",
+        "car",
+        "bus",
+        "bicycle",
+        "motorbike",
+    ],
+}
+
 # ── Data fractions (core experiment) ──────────────────────────────────────────
 DATA_FRACTIONS  = [0.05, 0.10, 0.20, 0.50, 1.00]
 

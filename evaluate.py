@@ -8,6 +8,7 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+from matplotlib.lines import Line2D
 
 from config import VOC_CLASSES, RESULTS_DIR
 
@@ -127,6 +128,104 @@ def print_summary_table(histories: list[dict]):
         )
     print("=" * len(header))
 
+def plot_per_class_ap_comparison(histories: list[dict], save_dir: str = RESULTS_DIR):
+    """
+    Side-by-side horizontal bar chart comparing per-class AP across two models.
+    Bars are grouped by class, sorted by the gap between models.
+    """
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from config import VOC_CLASS_CATEGORIES
+
+    assert len(histories) == 2, "Pass exactly two model histories for comparison"
+
+    h1, h2 = histories
+    ap1 = h1["per_class_ap_final"]
+    ap2 = h2["per_class_ap_final"]
+    label1 = h1['model']
+    label2 = h2['model']
+
+    # ── Sort classes by gap (largest gap at top) ───────────────────────────────
+    classes = [c for c in ap1.keys() if c in ap2]
+    gaps = {c: ap2[c] - ap1[c] for c in classes}
+    sorted_classes = sorted(classes, key=lambda c: gaps[c], reverse=True)
+
+    ap1_vals = [ap1[c] for c in sorted_classes]
+    ap2_vals = [ap2[c] for c in sorted_classes]
+    gap_vals = [gaps[c] for c in sorted_classes]
+
+    # ── Color bars by category ─────────────────────────────────────────────────
+    category_colors = {
+        "texture_defined":   "#2196F3",  # blue
+        "context_dependent": "#FF5722",  # orange
+        "ambiguous":         "#9C27B0",  # purple
+    }
+    class_to_category = {}
+    for cat, cls_list in VOC_CLASS_CATEGORIES.items():
+        for c in cls_list:
+            class_to_category[c] = cat
+
+    bar_colors = [category_colors[class_to_category[c]] for c in sorted_classes]
+
+    # ── Plot ───────────────────────────────────────────────────────────────────
+    fig, axes = plt.subplots(1, 2, figsize=(16, 8), sharey=True)
+    y = np.arange(len(sorted_classes))
+    bar_height = 0.35
+
+    # Left panel — grouped bars
+    axes[0].barh(y + bar_height/2, ap2_vals, bar_height,
+                 label=label2, color="#FF9800", alpha=0.85)
+    axes[0].barh(y - bar_height/2, ap1_vals, bar_height,
+                 label=label1, color="#1565C0", alpha=0.85)
+    axes[0].set_yticks(y)
+    axes[0].set_yticklabels([
+        f"{c}  [{class_to_category[c].replace('_', ' ')}]"
+        for c in sorted_classes
+    ], fontsize=9)
+    axes[0].set_xlabel("Average Precision")
+    axes[0].set_title("Per-Class AP by Model")
+    axes[0].set_xlim(0, 1.05)
+    axes[0].axvline(h1["best_val_map"], color="#1565C0", linestyle="--", alpha=0.4)
+    axes[0].axvline(h2["best_val_map"], color="#FF9800", linestyle="--", alpha=0.4)
+    legend_elements_left = [
+        plt.Rectangle((0,0), 1, 1, color="#FF9800", alpha=0.85, label=label2),
+        plt.Rectangle((0,0), 1, 1, color="#1565C0", alpha=0.85, label=label1),
+        Line2D([0], [0], color="#FF9800", linestyle="--", alpha=0.6, label=f"{h2['model']} mAP={h2['best_val_map']:.3f}"),
+        Line2D([0], [0], color="#1565C0", linestyle="--", alpha=0.6, label=f"{h1['model']} mAP={h1['best_val_map']:.3f}"),
+    ]
+    axes[0].legend(handles=legend_elements_left, fontsize=7, loc="lower right")
+
+    axes[0].grid(True, alpha=0.3, axis="x")
+
+    # Right panel — gap bars colored by category
+    axes[1].barh(y, gap_vals, color=bar_colors, alpha=0.85)
+    axes[1].set_yticks(y)
+    axes[1].set_yticklabels(sorted_classes, fontsize=9)
+    axes[1].set_xlabel(f"AP Gap ({h2['model']} − {h1['model']})")
+    axes[1].set_title("Per-Class Gap (sorted largest → smallest)")
+    axes[1].axvline(0, color="black", linewidth=0.8)
+    axes[1].grid(True, alpha=0.3, axis="x")
+
+    # Category legend for right panel
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor=color, label=cat.replace("_", " "))
+        for cat, color in category_colors.items()
+    ]
+    axes[1].legend(handles=legend_elements, fontsize=7, loc="upper right", bbox_to_anchor=(1.0, 0.4))
+
+    plt.suptitle(
+        f"Per-Class AP Comparison\n{label1} vs {label2} | "
+        f"fraction={int(h1['fraction']*100)}% | aug={h1['aug_policy']}",
+        fontsize=11
+    )
+    plt.tight_layout()
+
+    out = os.path.join(save_dir, "per_class_ap_comparison.png")
+    plt.savefig(out, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"[evaluate] Comparison chart saved → {out}")
+    return out
 
 # ── CLI ────────────────────────────────────────────────────────────────────────
 
@@ -155,3 +254,6 @@ if __name__ == "__main__":
         plot_model_comparison(histories, save_dir=args.results_dir)
 
     print_summary_table(histories)
+    
+    if len(histories) == 2:
+        plot_per_class_ap_comparison(histories, save_dir=args.results_dir)
